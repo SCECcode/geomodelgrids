@@ -228,6 +228,50 @@ geomodelgrids_squery_queryTopoBathyElevation(void* handle,
 
 
 // ------------------------------------------------------------------------------------------------
+// Query for Model contains a given point.
+int
+geomodelgrids_squery_queryModelContains(void* handle,
+                                        const double x,
+                                        const double y) {
+    geomodelgrids::serial::Query* query = (geomodelgrids::serial::Query*) handle;
+    if (!handle) {
+        std::cerr << "NULL handle for query object in call to geomodelgrids_squery_queryModelContains().";
+        return -1;
+    } // if
+
+    assert(query);
+
+    int contains = -1;
+
+    try {
+        contains = query->queryModelContains(x, y);
+        if (contains < 0 ) {
+            std::ostringstream warning;
+            warning << "WARNING: Could not find model containing ("
+                    << std::resetiosflags(std::ios::fixed)
+                    << std::setiosflags(std::ios::scientific)
+                    << std::setprecision(6)
+                    << x << ", " << y << ").";
+            geomodelgrids::utils::ErrorHandler& errorHandler = query->getErrorHandler();
+            errorHandler.setWarning(warning.str().c_str());
+            errorHandler.logMessage(warning.str().c_str());
+        } // if
+    } catch (const std::exception& err) {
+        std::ostringstream error;
+        error << "ERROR: Fatal error when querying for containing model at point "
+              << std::resetiosflags(std::ios::fixed)
+              << std::setiosflags(std::ios::scientific)
+              << std::setprecision(6)
+              << x << ", " << y <<"\n" << err.what();
+        geomodelgrids::utils::ErrorHandler& errorHandler = query->getErrorHandler();
+        errorHandler.setError(error.str().c_str());
+        errorHandler.logMessage(error.str().c_str());
+    } // try/catch
+
+    return contains;
+} // queryModelContains
+  
+// ------------------------------------------------------------------------------------------------
 // Query at point.
 int
 geomodelgrids_squery_query(void* handle,

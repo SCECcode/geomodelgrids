@@ -86,6 +86,18 @@ double geomodelgrids_squery_queryTopoBathyElevation(void* handle,
                                                     const double x,
                                                     const double y);
 
+
+/** Query for model at point. 
+ *
+ * @param[inout] handle Handle to query object.
+ * @param[in] x X coordinate of point (in input CRS).
+ * @param[in] y Y coordinate of point (in input CRS).
+ * @returns model index at point.
+ */
+int geomodelgrids_squery_queryModelContains(void* handle,
+                                            const double x,
+                                            const double y);
+
 /** Query model for values at a point.
  *
  * Values array must be preallocated.

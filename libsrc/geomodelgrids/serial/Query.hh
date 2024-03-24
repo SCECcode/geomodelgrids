@@ -81,6 +81,18 @@ public:
     double queryTopoBathyElevation(const double x,
                                    const double y);
 
+
+    /** Query for model containing the given point.
+     *
+     * @param[in] x X coordinate of point (in input CRS).
+     * @param[in] y Y coordinate of point (in input CRS).
+     * @returns index of the model at point.
+     */
+    int queryModelContains(const double x,
+                           const double y);
+
+
+
     /** Query model for values at a point.
      *
      * Values array must be preallocated.

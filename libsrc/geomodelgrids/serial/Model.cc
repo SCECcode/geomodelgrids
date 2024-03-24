@@ -390,6 +390,22 @@ geomodelgrids::serial::Model::contains(const double x,
     return inModel;
 } // contains
 
+bool
+geomodelgrids::serial::Model::containsIn(const double x,
+                                       const double y) const {
+    double xModel = 0.0;
+    double yModel = 0.0;
+    bool inModel = false;
+
+    _toModelXYZ(&xModel, &yModel, NULL, x, y, 0.0);
+    if (( xModel >= 0.0) && ( xModel <= _dims[0]) &&
+       ( yModel >= 0.0) && ( yModel <= _dims[1])) {
+        inModel = true;
+    } // if
+
+    return inModel;
+} // contains
+
 
 // ------------------------------------------------------------------------------------------------
 // Query for elevation of top of model at point using bilinear interpolation.

@@ -138,6 +138,15 @@ public:
                   const double y,
                   const double z) const;
 
+    /** Does model contain given latlon?
+     *
+     * @param[in] x X coordinate of point (in input CRS).
+     * @param[in] y Y coordinate of point (in input CRS).
+     * @returns True if model contains given latlon, false otherwise.
+     */
+    bool containsIn(const double x,
+                    const double y) const;
+
     /** Query for elevation of top of model at point using bilinear interpolation.
      *
      * @param[in] x X coordinate of point (in input CRS).

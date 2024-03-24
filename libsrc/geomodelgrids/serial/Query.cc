@@ -179,6 +179,22 @@ geomodelgrids::serial::Query::queryTopoBathyElevation(const double x,
 
 
 // ------------------------------------------------------------------------------------------------
+// Query for model index of containing model at given point.
+int
+geomodelgrids::serial::Query::queryModelContains(const double x,
+                                                 const double y) {
+    for (int i = 0; i < _models.size(); ++i) {
+        assert(_models[i]);
+        if (_models[i]->containsIn(x, y)) {
+          return i;
+        } // if
+    } // for
+
+    return -1;
+} // queryModelContains
+
+
+// ------------------------------------------------------------------------------------------------
 // Query at point.
 int
 geomodelgrids::serial::Query::query(double* const values,
