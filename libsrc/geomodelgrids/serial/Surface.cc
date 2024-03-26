@@ -6,7 +6,7 @@
 #include "geomodelgrids/serial/Hyperslab.hh" // USES Hyperslab
 #include "geomodelgrids/utils/Indexing.hh" // USES Resolution
 #include "geomodelgrids/utils/constants.hh" // USES NODATA_VALUE
-
+					    
 #include <cstring> // USES strlen()
 #include <algorithm> // USES std::sort
 #include <stdexcept> // USES std::runtime_error

@@ -317,7 +317,8 @@ geomodelgrids::serial::Block::openQuery(geomodelgrids::serial::HDF5* const h5) {
 const double*
 geomodelgrids::serial::Block::query(const double x,
                                     const double y,
-                                    const double z) {
+                                    const double z,
+				    const std::vector<std::size_t>& unitsBoolean) { 
     assert(x >= 0.0);
     assert(y >= 0.0);
     assert(z <= 0.0);
@@ -334,7 +335,27 @@ geomodelgrids::serial::Block::query(const double x,
     assert( (_numValues > 0 && _values) || (!_numValues && !_values) );
 
     assert(_hyperslab);
+
+if(0) {
     _hyperslab->interpolate(_values, index);
+}
+if(1) {
+    double *_values_interpolate = new double[_numValues];
+    double *_values_nearest = new double[_numValues];
+
+    _hyperslab->interpolate(_values_interpolate, index);
+    _hyperslab->nearest(_values_nearest, index);
+
+    for (hsize_t iValue = 0; iValue < _numValues; ++iValue) {
+      if (unitsBoolean[iValue] == 1) {
+        _values[iValue] = _values_interpolate[iValue];
+        } else {
+          _values[iValue] = _values_nearest[iValue];
+      }
+    }
+    delete[] _values_interpolate;
+    delete[] _values_nearest;
+}
 
     return _values;
 } // query

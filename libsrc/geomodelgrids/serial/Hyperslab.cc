@@ -415,6 +415,7 @@ geomodelgrids::serial::_Hyperslab::_interpolate3D(double* const values,
     for (hsize_t iValue = 0; iValue < numValues; ++iValue) {
         values[iValue] = 0;
         bool hasNoDataValue = false;
+
         for (hsize_t iDim = 0; iDim < 2; ++iDim) {
             for (hsize_t jDim = 0; jDim < 2; ++jDim) {
                 for (hsize_t kDim = 0; kDim < 2; ++kDim) {
@@ -426,6 +427,7 @@ geomodelgrids::serial::_Hyperslab::_interpolate3D(double* const values,
                 } // for
             } // for
         } // for
+
         if (hasNoDataValue) {
             // Set value to NODATA_VALUE if any values used in interpolation are NODATA_VALUE.
             values[iValue] = geomodelgrids::NODATA_VALUE;
@@ -479,6 +481,8 @@ geomodelgrids::serial::_Hyperslab::_nearest2D(double* const values,
         const double nearestValue = _hyperslab._values[ii + iValue];
         if (fabs(1.0 - nearestValue/geomodelgrids::NODATA_VALUE) < 1.0e-3) {
             values[iValue] = geomodelgrids::NODATA_VALUE;
+            } else {
+                values[iValue] = nearestValue;
         } // if
     } // for
 
@@ -535,7 +539,10 @@ geomodelgrids::serial::_Hyperslab::_nearest3D(double* const values,
         const double nearestValue = _hyperslab._values[ii + iValue];
         if (fabs(1.0 - nearestValue/geomodelgrids::NODATA_VALUE) < 1.0e-3) {
             values[iValue] = geomodelgrids::NODATA_VALUE;
+            } else {
+                values[iValue] = nearestValue;
         } // if
+	 
     } // for
 
 } // _nearest3D

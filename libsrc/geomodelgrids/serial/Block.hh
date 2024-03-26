@@ -117,11 +117,13 @@ public:
      * @param[in] x X coordinate of point in model coordinate system.
      * @param[in] y Y coordinate of point in model coordinate system.
      * @param[in] z Z coordinate of point in model coordinate system.
+     * @param[in] unitsBoolean Interps vector.
      * @returns Value of model at specified point.
      */
     const double* query(const double x,
                         const double y,
-                        const double z);
+                        const double z,
+			const std::vector<std::size_t>& unitsBoolean);
 
     // Cleanup after querying.
     void closeQuery(void);

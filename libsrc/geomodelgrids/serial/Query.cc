@@ -183,7 +183,7 @@ geomodelgrids::serial::Query::queryTopoBathyElevation(const double x,
 int
 geomodelgrids::serial::Query::queryModelContains(const double x,
                                                  const double y) {
-    for (int i = 0; i < _models.size(); ++i) {
+    for (size_t i = 0; i < _models.size(); ++i) {
         assert(_models[i]);
         if (_models[i]->containsIn(x, y)) {
           return i;

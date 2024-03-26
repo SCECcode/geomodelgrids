@@ -113,7 +113,6 @@ geomodelgrids::serial::Model::close(void) {
     } // for
 } // close
 
-
 // ------------------------------------------------------------------------------------------------
 // Load metadata.
 void
@@ -144,6 +143,7 @@ geomodelgrids::serial::Model::loadMetadata(void) {
 
     if (_h5->hasAttribute("/", "data_units")) {
         _h5->readAttribute("/", "data_units", &_valueUnits);
+        _unitsBoolean = _toUnitsBoolean(_valueUnits);
     } else {
         msg << indent << "    /data_units\n";
         missingAttributes = true;
@@ -295,6 +295,15 @@ const std::vector<std::string>&
 geomodelgrids::serial::Model::getValueUnits(void) const {
     return _valueUnits;
 } // getValueUnits
+  //
+// ------------------------------------------------------------------------------------------------
+// Get boolean of units in model.
+const std::vector<std::size_t>&
+geomodelgrids::serial::Model::getUnitsBoolean(void) const {
+    return _unitsBoolean;
+} // getValueUnits
+
+
 
 
 // ------------------------------------------------------------------------------------------------
@@ -418,6 +427,7 @@ geomodelgrids::serial::Model::queryTopElevation(const double x,
         double xModel = 0.0;
         double yModel = 0.0;
         _toModelXYZ(&xModel, &yModel, NULL, x, y, 0.0);
+
         const double zModelCRS = _surfaceTop->query(xModel, yModel);
 
         const double yazimuthRad = _yazimuth * M_PI / 180.0;
@@ -448,7 +458,9 @@ geomodelgrids::serial::Model::queryTopoBathyElevation(const double x,
         double xModel = 0.0;
         double yModel = 0.0;
         _toModelXYZ(&xModel, &yModel, NULL, x, y, 0.0);
-        const double zModelCRS = (_surfaceTopoBathy) ? _surfaceTopoBathy->query(xModel, yModel) : _surfaceTop->query(xModel, yModel);
+
+        const double zModelCRS = (_surfaceTopoBathy) ? 
+           _surfaceTopoBathy->query(xModel, yModel): _surfaceTop->query(xModel, yModel);
 
         const double yazimuthRad = _yazimuth * M_PI / 180.0;
         const double cosAz = cos(yazimuthRad);
@@ -480,7 +492,8 @@ geomodelgrids::serial::Model::query(const double x,
     assert(contains(x, y, z));
 
     geomodelgrids::serial::Block* block = _findBlock(xModel, yModel, zModel);assert(block);
-    return block->query(xModel, yModel, zModel);
+
+    return block->query(xModel, yModel, zModel, _unitsBoolean);
 } // query
 
 
@@ -536,5 +549,20 @@ geomodelgrids::serial::Model::_findBlock(const double x,
     return NULL;
 } // _findBlock
 
+
+// ------------------------------------------------------------------------------------------------
+std::vector<std::size_t>
+geomodelgrids::serial::Model::_toUnitsBoolean(const std::vector<std::string>& strings) const {
+    const size_t numStrings = strings.size();
+    std::vector<std::size_t> stringsBoolean(numStrings);
+
+    for (size_t i = 0; i < numStrings; ++i) {
+        stringsBoolean[i]=1;
+        if (strings[i] == "None") {
+            stringsBoolean[i]=0;
+        }
+    } // for
+    return stringsBoolean;
+} // _toUnitsBoolean
 
 // End of file

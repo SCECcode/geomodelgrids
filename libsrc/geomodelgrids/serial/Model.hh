@@ -73,6 +73,12 @@ public:
      */
     const std::vector<std::string>& getValueUnits(void) const;
 
+    /** Get booleans of units in model.
+     *
+     * @returns Array of boolans of values in model.
+     */
+    const std::vector<std::size_t>& getUnitsBoolean(void) const;
+
     /** Get data layout.
      * 
      * @returns Data layout scheme.
@@ -206,11 +212,20 @@ private:
                                              const double y,
                                              const double z) const;
 
+    /** Transform array of Units strings to booleans ("none" = 0, others = 1)
+     *
+     * @param[in] strings Array of strings.
+     * @returns Array of boolean values.
+     */
+    std::vector<std::size_t> _toUnitsBoolean(const std::vector<std::string>& strings) const;
+
+
     // PRIVATE METHODS ----------------------------------------------------------------------------
 private:
 
     std::vector<std::string> _valueNames; ///< Names of values in model.
     std::vector<std::string> _valueUnits; ///< Units of values in model.
+    std::vector<std::size_t> _unitsBoolean; ///< Boolean of Units in model.
     DataLayout _layout; ///< Data layout (vertex or cell data).
     std::string _modelCRSString; ///< Model CRS as string (PROJ, EPSG, or WKT).
     std::string _inputCRSString; ///< CRS as string (PROJ, EPSG, WKT for input points).
