@@ -35,7 +35,7 @@ namespace geomodelgrids {
             void verifyBlock(geomodelgrids::serial::Block* block,
                              const geomodelgrids::serial::Model* model);
 
-            void verifyBlocksZ(const std::vector<geomodelgrids::serial::Block*>& blocks,
+            void verifyBlocksZ(const std::vector<std::shared_ptr<geomodelgrids::serial::Block> >& blocks,
                                const double zBottom);
 
             const double* computeBoundingBox(const geomodelgrids::serial::Model* model);
@@ -111,21 +111,21 @@ void
 geomodelgrids::apps::Info::_parseArgs(int argc,
                                       char* argv[]) {
     static struct option options[9] = {
-        {"help", no_argument, NULL, 'h'},
-        {"description", no_argument, NULL, 'd'},
-        {"blocks", no_argument, NULL, 'b'},
-        {"coordsys", no_argument, NULL, 'c'},
-        {"values", no_argument, NULL, 'v'},
-        {"verify", no_argument, NULL, 'q'},
-        {"all", no_argument, NULL, 'a'},
-        {"models", required_argument, NULL, 'm'},
+        {"help", no_argument, nullptr, 'h'},
+        {"description", no_argument, nullptr, 'd'},
+        {"blocks", no_argument, nullptr, 'b'},
+        {"coordsys", no_argument, nullptr, 'c'},
+        {"values", no_argument, nullptr, 'v'},
+        {"verify", no_argument, nullptr, 'q'},
+        {"all", no_argument, nullptr, 'a'},
+        {"models", required_argument, nullptr, 'm'},
         {0, 0, 0, 0}
     };
 
     bool optionsOk = false;
     while (true) {
         // extern char* optarg;
-        const char c = getopt_long(argc, argv, "hdbcvam:", options, NULL);
+        const char c = getopt_long(argc, argv, "hdbcvam:", options, nullptr);
         if (-1 == c) { break; }
         switch (c) {
         case 'h':
@@ -212,7 +212,7 @@ void
 geomodelgrids::apps::Info::_printDescription(geomodelgrids::serial::Model* const model) {
     assert(model);
 
-    const geomodelgrids::serial::ModelInfo* info = model->getInfo();assert(info);
+    const std::shared_ptr<geomodelgrids::serial::ModelInfo>& info = model->getInfo();assert(info);
     std::cout << _Info::indent(1) << "Title: " << info->getTitle() << "\n";
     std::cout << _Info::indent(1) << "Id: " << info->getId() << "\n";
     std::cout << _Info::indent(1) << "Description: " << info->getDescription() << "\n";
@@ -320,7 +320,7 @@ geomodelgrids::apps::Info::_printBlocks(geomodelgrids::serial::Model* const mode
 
     std::cout << _Info::indent(1) << "Surfaces\n";
     std::cout << _Info::indent(2) << "Top surface:\n";
-    const geomodelgrids::serial::Surface* surfaceTop = model->getTopSurface();
+    const std::shared_ptr<geomodelgrids::serial::Surface>& surfaceTop = model->getTopSurface();
     if (surfaceTop) {
         const size_t* dims = surfaceTop->getDims();
         std::cout << _Info::indent(3) << "Number of points: x=" << dims[0] << ", y=" << dims[1] << "\n";
@@ -332,7 +332,7 @@ geomodelgrids::apps::Info::_printBlocks(geomodelgrids::serial::Model* const mode
     } // if/else
 
     std::cout << _Info::indent(2) << "Topography/bathymetry:\n";
-    const geomodelgrids::serial::Surface* surfaceTopoBathy = model->getTopoBathy();
+    const std::shared_ptr<geomodelgrids::serial::Surface>& surfaceTopoBathy = model->getTopoBathy();
     if (surfaceTopoBathy) {
         const size_t* dims = surfaceTopoBathy->getDims();
         std::cout << _Info::indent(3) << "Number of points: x=" << dims[0] << ", y=" << dims[1] << "\n";
@@ -343,7 +343,7 @@ geomodelgrids::apps::Info::_printBlocks(geomodelgrids::serial::Model* const mode
         std::cout << _Info::indent(3) << "None\n";
     } // if/else
 
-    const std::vector<geomodelgrids::serial::Block*>& blocks = model->getBlocks();
+    const std::vector<std::shared_ptr<geomodelgrids::serial::Block> >& blocks = model->getBlocks();
     const size_t numBlocks = blocks.size();
     std::cout << _Info::indent(1) << "Blocks ("<< numBlocks << ")\n";
     for (size_t i = 0; i < numBlocks; ++i) {
@@ -385,11 +385,11 @@ geomodelgrids::apps::Info::_verify(geomodelgrids::serial::Model* const model) {
     if (ok) { std::cout << "OK\n"; }
     _Info::verifyCoordSys(model);
 
-    const geomodelgrids::serial::Surface* surfaceTop = model->getTopSurface();
-    if (surfaceTop) { _Info::verifySurface(surfaceTop, model, "top surface"); }
+    const std::shared_ptr<geomodelgrids::serial::Surface>& surfaceTop = model->getTopSurface();
+    if (surfaceTop) { _Info::verifySurface(surfaceTop.get(), model, "top surface"); }
 
-    const geomodelgrids::serial::Surface* surfaceTopoBathy = model->getTopoBathy();
-    if (surfaceTopoBathy) { _Info::verifySurface(surfaceTopoBathy, model, "topography/bathymetry"); }
+    const std::shared_ptr<geomodelgrids::serial::Surface>& surfaceTopoBathy = model->getTopoBathy();
+    if (surfaceTopoBathy) { _Info::verifySurface(surfaceTopoBathy.get(), model, "topography/bathymetry"); }
 
     if (surfaceTop && surfaceTopoBathy) {
         std::cout << _Info::indent(2) << "Verifying resolution of top surface matches resolution of topography/bathymetry...";
@@ -409,10 +409,10 @@ geomodelgrids::apps::Info::_verify(geomodelgrids::serial::Model* const model) {
         } // if/else
     } // if
 
-    const std::vector<geomodelgrids::serial::Block*>& blocks = model->getBlocks();
+    const std::vector<std::shared_ptr<geomodelgrids::serial::Block> >& blocks = model->getBlocks();
     const size_t numBlocks = blocks.size();
     for (size_t i = 0; i < numBlocks; ++i) {
-        _Info::verifyBlock(blocks[i], model);
+        _Info::verifyBlock(blocks[i].get(), model);
     } // for
 
     const double zBottom = -model->getDims()[2];
@@ -455,7 +455,7 @@ geomodelgrids::apps::_Info::verifyCoordSys(const geomodelgrids::serial::Model* m
 
     std::string xUnit;
     std::string yUnit;
-    geomodelgrids::utils::CRSTransformer::getCRSUnits(&xUnit, &yUnit, NULL,
+    geomodelgrids::utils::CRSTransformer::getCRSUnits(&xUnit, &yUnit, nullptr,
                                                       model->getCRSString().c_str());
     if (xUnit != yUnit) {
         if (ok) { std::cout << "FAIL\n"; }
@@ -532,7 +532,7 @@ geomodelgrids::apps::_Info::verifyBlock(geomodelgrids::serial::Block* block,
     } // for
 
     // Verify block resolution is integer multiple of topography resolution.
-    const geomodelgrids::serial::Surface* surfaceTop = model->getTopSurface();
+    const std::shared_ptr<geomodelgrids::serial::Surface> surfaceTop = model->getTopSurface();
     if (surfaceTop) {
         double topoResolution[2];
         topoResolution[0] = surfaceTop->getResolutionX();
@@ -557,7 +557,7 @@ geomodelgrids::apps::_Info::verifyBlock(geomodelgrids::serial::Block* block,
 // ------------------------------------------------------------------------------------------------
 // Verify blocks span vertical dimension of domain. Blocks are ordered top to bottom.
 void
-geomodelgrids::apps::_Info::verifyBlocksZ(const std::vector<geomodelgrids::serial::Block*>& blocks,
+geomodelgrids::apps::_Info::verifyBlocksZ(const std::vector<std::shared_ptr<geomodelgrids::serial::Block> >& blocks,
                                           const double zBottom) {
     // Blocks are ordered top to bottom.
 
@@ -633,7 +633,7 @@ geomodelgrids::apps::_Info::computeBoundingBox(const geomodelgrids::serial::Mode
     transformer.setDest("EPSG:4326");
     transformer.initialize();
     for (size_t i = 0; i < npts; ++i) {
-        transformer.transform(&bbox_geo[i*dim+0], &bbox_geo[i*dim+1], NULL, bbox_model[i*dim+0], bbox_model[i*dim+1], 0.0);
+        transformer.transform(&bbox_geo[i*dim+0], &bbox_geo[i*dim+1], nullptr, bbox_model[i*dim+0], bbox_model[i*dim+1], 0.0);
     } // for
 
     return bbox_geo;
