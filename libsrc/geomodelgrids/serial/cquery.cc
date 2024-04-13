@@ -252,7 +252,7 @@ geomodelgrids_squery_queryModelContains(void* handle,
                     << std::setiosflags(std::ios::scientific)
                     << std::setprecision(6)
                     << x << ", " << y << ").";
-            geomodelgrids::utils::ErrorHandler& errorHandler = query->getErrorHandler();
+            std::shared_ptr<geomodelgrids::utils::ErrorHandler>& errorHandler = query->getErrorHandler();
             errorHandler.setWarning(warning.str().c_str());
             errorHandler.logMessage(warning.str().c_str());
         } // if
@@ -263,7 +263,7 @@ geomodelgrids_squery_queryModelContains(void* handle,
               << std::setiosflags(std::ios::scientific)
               << std::setprecision(6)
               << x << ", " << y <<"\n" << err.what();
-        geomodelgrids::utils::ErrorHandler& errorHandler = query->getErrorHandler();
+        std::shared_ptr<geomodelgrids::utils::ErrorHandler>& errorHandler = query->getErrorHandler();
         errorHandler.setError(error.str().c_str());
         errorHandler.logMessage(error.str().c_str());
     } // try/catch
