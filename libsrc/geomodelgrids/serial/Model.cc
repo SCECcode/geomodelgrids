@@ -478,14 +478,6 @@ geomodelgrids::serial::Model::query(const double x,
     _toModelXYZ(&xModel, &yModel, &zModel, x, y, z);
     assert(contains(x, y, z));
 
-/* MEI-HEAD
-    geomodelgrids::serial::Block* block = _findBlock(xModel, yModel, zModel);assert(block);
-    return block->query(xModel, yModel, zModel, _unitsBoolean);
-=======
-    std::shared_ptr<geomodelgrids::serial::Block> block = _findBlock(xModel, yModel, zModel);assert(block);
-    return block->query(xModel, yModel, zModel, _unitsBoolean);
-efec6d84b57a5e289d95e6d58d95b25a90fc6f24
-*/
     std::shared_ptr<geomodelgrids::serial::Block> block = _findBlock(xModel, yModel, zModel);assert(block);
     return block->query(xModel, yModel, zModel, _unitsBoolean);
 
