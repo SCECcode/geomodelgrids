@@ -253,8 +253,8 @@ geomodelgrids_squery_queryModelContains(void* handle,
                     << std::setprecision(6)
                     << x << ", " << y << ").";
             std::shared_ptr<geomodelgrids::utils::ErrorHandler>& errorHandler = query->getErrorHandler();
-            errorHandler.setWarning(warning.str().c_str());
-            errorHandler.logMessage(warning.str().c_str());
+            errorHandler->setWarning(warning.str().c_str());
+            errorHandler->logMessage(warning.str().c_str());
         } // if
     } catch (const std::exception& err) {
         std::ostringstream error;
@@ -264,8 +264,8 @@ geomodelgrids_squery_queryModelContains(void* handle,
               << std::setprecision(6)
               << x << ", " << y <<"\n" << err.what();
         std::shared_ptr<geomodelgrids::utils::ErrorHandler>& errorHandler = query->getErrorHandler();
-        errorHandler.setError(error.str().c_str());
-        errorHandler.logMessage(error.str().c_str());
+        errorHandler->setError(error.str().c_str());
+        errorHandler->logMessage(error.str().c_str());
     } // try/catch
 
     return contains;
