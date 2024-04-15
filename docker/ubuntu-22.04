@@ -13,6 +13,7 @@ RUN apt-get update \
   automake \
   autoconf \
   libtool \
+  cmake \
   curl \
   libpython3.10 \
   python3-dev \
@@ -22,7 +23,6 @@ RUN apt-get update \
   unzip \
   git \
   ca-certificates \
-  libcppunit-dev \
   hdf5-tools \
   libhdf5-dev \
   sqlite3 \
@@ -70,7 +70,8 @@ ENV HOME=/home/$GMG_USER \
 RUN useradd --create-home --shell /bin/bash $GMG_USER \
   && mkdir -p ${INSTALL_DIR} \
   && chown ${GMG_USER} ${INSTALL_DIR} \
-  && chgrp ${GMG_USER} ${INSTALL_DIR}
+  && chgrp ${GMG_USER} ${INSTALL_DIR} \
+  && projsync --system-directory --bbox -128.0,34.0,-118.0,42.0
 
 ENV TOP_SRCDIR=$HOME/src \
   TOP_BUILDDIR=$HOME/build
@@ -78,16 +79,31 @@ ENV TOP_SRCDIR=$HOME/src \
 USER ${GMG_USER}
 
 # --------------------------------------
+# Catch2
+# --------------------------------------
+ENV CATCH2_VER=3.3.2  src_dir=${TOP_SRCDIR}/catch2  build_dir=${TOP_BUILDDIR}/catch2
+RUN mkdir -p ${src_dir} && mkdir -p ${build_dir}
+WORKDIR ${src_dir}
+RUN curl -L -O https://github.com/catchorg/Catch2/archive/refs/tags/v${CATCH2_VER}.tar.gz \
+  && tar -xf v${CATCH2_VER}.tar.gz
+
+WORKDIR ${build_dir}
+RUN cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${src_dir}/Catch2-${CATCH2_VER} \
+  && make -j$(nproc) \
+  && make install \
+  && rm -r ${build_dir}
+
+# --------------------------------------
 # Python packages
 # --------------------------------------
 RUN python3 -m venv ${INSTALL_DIR} && \
   if [ x${CERT_FILE} = x"no" ]; then \
   python3 -m pip install --upgrade pip setuptools && \
-  python3 -m pip install numpy coverage && \
+  python3 -m pip install numpy coverage pybind11 && \
   CC=gcc HDF5_LIBDIR=${HDF5_LIBDIR} HDF5_INCLUDEDIR=${HDF5_INCDIR} python3 -m pip install --no-binary h5py h5py; \
   else \
   SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} python3 -m pip install --upgrade pip setuptools && \
-  SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} python3 -m pip install numpy coverage && \
+  SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} python3 -m pip install numpy coverage pybind11 && \
   SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} CC=gcc HDF5_LIBDIR=${HDF5_LIBDIR} HDF5_INCLUDEDIR=${HDF5_INCDIR} python3 -m pip install --no-binary h5py h5py; \
   fi
 

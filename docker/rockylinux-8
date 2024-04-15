@@ -27,6 +27,7 @@ RUN dnf install -y \
   automake \
   autoconf \
   libtool \
+  cmake \
   curl \
   python38 \
   python38-devel \
@@ -93,7 +94,8 @@ WORKDIR ${build_dir}
 RUN ${src_dir}/proj-${PROJ_VER}/configure --prefix=${INSTALL_DIR} SQLITE3_CFLAGS=-I/usr/include SQLITE3_LIBS="-L/usr/lib -lsqlite3" \
   && make -j$(nproc) \
   && make install \
-  && rm -r ${build_dir}
+  && rm -r ${build_dir} \
+  && projsync --system-directory --bbox -128.0,34.0,-118.0,42.0
 
 
 # --------------------------------------
@@ -112,20 +114,19 @@ RUN ${src_dir}/hdf5-${HDF5_VER}/configure --prefix=${INSTALL_DIR} --enable-share
   && rm -r ${build_dir}
 
 # --------------------------------------
-# CPPUNIT
+# Catch2
 # --------------------------------------
-ENV CPPUNIT_VER=1.15.1  src_dir=${TOP_SRCDIR}/cppunit  build_dir=${TOP_BUILDDIR}/cppunit
+ENV CATCH2_VER=3.3.2  src_dir=${TOP_SRCDIR}/catch2  build_dir=${TOP_BUILDDIR}/catch2
 RUN mkdir -p ${src_dir} && mkdir -p ${build_dir}
 WORKDIR ${src_dir}
-RUN curl -L -O http://dev-www.libreoffice.org/src/cppunit-${CPPUNIT_VER}.tar.gz \
-  && tar -xf cppunit-${CPPUNIT_VER}.tar.gz
+RUN curl -L -O https://github.com/catchorg/Catch2/archive/refs/tags/v${CATCH2_VER}.tar.gz \
+  && tar -xf v${CATCH2_VER}.tar.gz
 
 WORKDIR ${build_dir}
-RUN ${src_dir}/cppunit-${CPPUNIT_VER}/configure --prefix=${INSTALL_DIR} --enable-shared --disable-static \
+RUN cmake -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${src_dir}/Catch2-${CATCH2_VER} \
   && make -j$(nproc) \
   && make install \
   && rm -r ${build_dir}
-
 
 # --------------------------------------
 # Python packages
@@ -133,11 +134,11 @@ RUN ${src_dir}/cppunit-${CPPUNIT_VER}/configure --prefix=${INSTALL_DIR} --enable
 RUN python3 -m venv ${INSTALL_DIR} && \
   if [ x${CERT_FILE} = x"no" ]; then \
   python3 -m pip install --upgrade pip setuptools && \
-  python3 -m pip install numpy coverage && \
+  python3 -m pip install numpy coverage pybind11 && \
   CC=gcc HDF5_LIBDIR=${HDF5_LIBDIR} HDF5_INCLUDEDIR=${HDF5_INCDIR} python3 -m pip install --no-binary h5py h5py; \
   else \
   SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} python3 -m pip install --upgrade pip setuptools && \
-  SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} python3 -m pip install numpy coverage && \
+  SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} python3 -m pip install numpy coverage pybind11 && \
   SSL_CERT_FILE=${CERT_FILE} REQUESTS_CA_BUNDLE=${CERT_FILE} CC=gcc HDF5_LIBDIR=${HDF5_LIBDIR} HDF5_INCLUDEDIR=${HDF5_INCDIR} python3 -m pip install --no-binary h5py h5py; \
   fi
 
