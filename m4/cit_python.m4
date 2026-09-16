@@ -363,7 +363,7 @@ trap "rm \"$cfgfile\"; exit 1" 1 2 15
 rm -f "$cfgfile"
 AC_MSG_NOTICE([creating $ofile])
 cat >"$cfgfile" <<END_OF_PYTHON
-[#!/usr/bin/env python
+[#!/usr/bin/env python3
 
 from getopt import getopt, GetoptError
 from sys import argv, exit
@@ -404,7 +404,7 @@ for key in keys:
     makefile_vars[key] = expand_makefile_vars(makefile_vars[key], makefile_vars)
 
 with open(output, 'w') as f:
-     f.write("#!/usr/bin/env python\n\n")
+     f.write("#!/usr/bin/env python3\n\n")
      f.write("config = %s\n\n\n" % config_vars)
      f.write("makefile = %s\n\n" % makefile_vars)
      f.write("# end of file\n")
